@@ -17,6 +17,36 @@
         "hooks": [
           {
             "type": "command",
+            "command": "node \"${CLAUDE_PLUGIN_ROOT}/scripts/hooks/run-with-flags.js\" \"pre:bash:block-push-main\" \"scripts/hooks/pre-bash-block-push-main.js\" \"strict\""
+          }
+        ],
+        "description": "Block git push to protected main/master branches"
+      },
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"${CLAUDE_PLUGIN_ROOT}/scripts/hooks/run-with-flags.js\" \"pre:bash:mongo-readonly\" \"scripts/hooks/pre-bash-mongo-readonly.js\" \"strict\""
+          }
+        ],
+        "description": "Restrict Mongo shell usage to read-only commands"
+      },
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"${CLAUDE_PLUGIN_ROOT}/scripts/hooks/run-with-flags.js\" \"pre:bash:kubectl-readonly\" \"scripts/hooks/pre-bash-kubectl-readonly.js\" \"strict\""
+          }
+        ],
+        "description": "Restrict kubectl and helm usage to read-only commands"
+      },
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
             "command": "node \"${CLAUDE_PLUGIN_ROOT}/scripts/hooks/run-with-flags.js\" \"pre:bash:tmux-reminder\" \"scripts/hooks/pre-bash-tmux-reminder.js\" \"strict\""
           }
         ],

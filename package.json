@@ -89,6 +89,7 @@
     "agent-config:render:codex": "node scripts/agent-config.js render --tool codex",
     "agent-config:render-project:claude": "node scripts/agent-config.js render-project --tool claude",
     "agent-config:render-project:codex": "node scripts/agent-config.js render-project --tool codex",
+    "agent-config:deploy:claude": "node scripts/agent-config.js deploy-home --tool claude --target-dir ~/.claude",
     "agent-config:check-upstream": "node scripts/agent-config.js check-upstream --tool claude",
     "lint": "eslint . && markdownlint '**/*.md' --ignore node_modules",
     "claw": "node scripts/claw.js",

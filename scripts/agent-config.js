@@ -11,6 +11,7 @@ const {
 } = require('./lib/agent-config/custom-skills');
 const { loadManifest, resolveStacks, summarizeSelection } = require('./lib/agent-config/manifest');
 const { loadSkillReviewCatalog } = require('./lib/agent-config/skill-review');
+const { createTempRenderDir, deployClaudeHome } = require('./lib/agent-config/deploy-claude-home');
 const { renderClaude } = require('./lib/agent-config/render-claude');
 const { renderCodex } = require('./lib/agent-config/render-codex');
 const { renderProject } = require('./lib/agent-config/render-project');
@@ -22,6 +23,7 @@ function parseArgs(argv) {
     tool: null,
     stacks: [],
     output: null,
+    targetDir: null,
     projectDir: null,
     manifest: null,
     baseRef: 'main',
@@ -47,6 +49,11 @@ function parseArgs(argv) {
     }
     if (token === '--project-dir') {
       args.projectDir = argv[index + 1];
+      index += 1;
+      continue;
+    }
+    if (token === '--target-dir') {
+      args.targetDir = argv[index + 1];
       index += 1;
       continue;
     }
@@ -173,10 +180,24 @@ function runUpdateCheck(args) {
   process.stdout.write(formatSummary(summary));
 }
 
+function runClaudeHomeDeploy(args) {
+  if (args.tool !== 'claude') {
+    throw new Error('deploy-home currently supports only --tool claude');
+  }
+
+  const rootDir = getRepoRoot();
+  const { manifest, selection } = getSelection(args);
+  const renderDir = createTempRenderDir();
+  const targetDir = path.resolve(args.targetDir || path.join(process.env.HOME || '~', '.claude'));
+
+  renderClaude(rootDir, renderDir, selection, manifest);
+  return deployClaudeHome({ renderDir, targetDir });
+}
+
 function main() {
   const args = parseArgs(process.argv);
   if (!args.command) {
-    throw new Error('Usage: node scripts/agent-config.js <render|render-project|check-upstream> --tool <claude|codex> [--stacks a,b]');
+    throw new Error('Usage: node scripts/agent-config.js <render|render-project|deploy-home|check-upstream> --tool <claude|codex> [--stacks a,b]');
   }
 
   if (args.command === 'render') {
@@ -193,6 +214,12 @@ function main() {
 
   if (args.command === 'check-upstream') {
     runUpdateCheck(args);
+    return;
+  }
+
+  if (args.command === 'deploy-home') {
+    const result = runClaudeHomeDeploy(args);
+    process.stdout.write(`Deployed ${args.tool} home configuration to ${result.targetDir}\n`);
     return;
   }
 

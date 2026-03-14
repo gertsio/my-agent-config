@@ -45,6 +45,12 @@ Render Claude home output:
 npm run agent-config:render:claude -- --output ./build/claude-home
 ```
 
+Deploy the managed Claude home install to `~/.claude`:
+
+```bash
+npm run agent-config:deploy:claude
+```
+
 Render Codex home output:
 
 ```bash
@@ -74,6 +80,13 @@ Claude render:
 - selected `skills/`
 - shared `contexts/`, `hooks/`, `mcp-configs/`, `scripts/`
 - generated `rules/common/agents.md`
+
+Claude home deploy:
+- renders to a temporary managed output first, then syncs only managed Claude directories into `~/.claude`
+- preserves runtime state like `settings*.json`, `plugins/`, history, sessions, transcripts, telemetry, and local shell integrations
+- treats `hooks/hooks.json` as the managed hook source of truth
+- merges non-managed local hook extras such as theme sync into `~/.claude/hooks.json`
+- strips duplicated hook config out of `~/.claude/settings.json` so settings stays focused on permissions/env/statusline
 
 Claude project overlay:
 - generated root `AGENTS.md`
