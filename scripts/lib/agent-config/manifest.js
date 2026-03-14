@@ -125,7 +125,7 @@ function resolveStacks(manifest, requestedStacks, tool, reviewCatalog = null) {
 }
 
 function summarizeSelection(selection) {
-  return {
+  const summary = {
     tool: selection.tool,
     stacks: selection.stacks,
     agents: selection.shared.agents,
@@ -135,6 +135,20 @@ function summarizeSelection(selection) {
     copyFiles: selection.tooling.copyFiles,
     protectedPaths: selection.tooling.protectedPaths
   };
+
+  if (selection.custom) {
+    summary.custom = {
+      skills: selection.custom.skills,
+      commands: selection.custom.commands,
+      privateProfiles: selection.custom.privateProfiles.map(profile => ({
+        skill: profile.skill,
+        targetPath: profile.targetPath,
+        required: profile.required
+      }))
+    };
+  };
+
+  return summary;
 }
 
 module.exports = {

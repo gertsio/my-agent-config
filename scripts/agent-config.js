@@ -3,6 +3,12 @@
 const path = require('path');
 
 const { ensureDir, writeFile } = require('./lib/agent-config/filesystem');
+const {
+  applyCustomAssets,
+  loadCustomSkillCatalog,
+  resolveCustomAssets,
+  validateCustomSkillCatalog
+} = require('./lib/agent-config/custom-skills');
 const { loadManifest, resolveStacks, summarizeSelection } = require('./lib/agent-config/manifest');
 const { loadSkillReviewCatalog } = require('./lib/agent-config/skill-review');
 const { renderClaude } = require('./lib/agent-config/render-claude');
@@ -75,12 +81,38 @@ function getSkillReviewPath() {
   return path.join(getRepoRoot(), 'config', 'skill-review.json');
 }
 
+function getCustomSkillCatalogPath() {
+  return path.join(getRepoRoot(), 'config', 'custom-skills.json');
+}
+
+function getDefaultStacks(manifest, tool) {
+  if (!manifest.defaults) {
+    return [];
+  }
+
+  if (Array.isArray(manifest.defaults.stacks)) {
+    return manifest.defaults.stacks;
+  }
+
+  if (manifest.defaults.byTool && Array.isArray(manifest.defaults.byTool[tool])) {
+    return manifest.defaults.byTool[tool];
+  }
+
+  return [];
+}
+
 function getSelection(args) {
+  const rootDir = getRepoRoot();
   const manifest = loadManifest(getManifestPath(args));
   const reviewCatalog = loadSkillReviewCatalog(getSkillReviewPath());
+  const customSkillCatalog = loadCustomSkillCatalog(getCustomSkillCatalogPath());
+  validateCustomSkillCatalog(customSkillCatalog);
+  const baseSelection = resolveStacks(manifest, args.stacks, args.tool, reviewCatalog);
+  const customAssets = resolveCustomAssets(rootDir, customSkillCatalog, args.tool);
+
   return {
     manifest,
-    selection: resolveStacks(manifest, args.stacks, args.tool, reviewCatalog)
+    selection: applyCustomAssets(baseSelection, customAssets)
   };
 }
 
@@ -114,7 +146,7 @@ function runProjectRender(args) {
 
 function runUpdateCheck(args) {
   const manifest = loadManifest(getManifestPath(args));
-  const selectedStacks = args.stacks.length > 0 ? args.stacks : manifest.defaults.stacks;
+  const selectedStacks = args.stacks.length > 0 ? args.stacks : getDefaultStacks(manifest, args.tool || 'claude');
   const changedFiles = getChangedFiles(getRepoRoot(), args.baseRef, args.compareRef);
   const summary = summarizeChangedFiles(manifest, selectedStacks, changedFiles);
   process.stdout.write(formatSummary(summary));

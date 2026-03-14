@@ -38,6 +38,20 @@ function copyConfiguredPaths(rootDir, targetDir, selection) {
   }
 }
 
+function copyPrivateProfiles(targetDir, selection) {
+  if (!selection.custom || !selection.custom.privateProfiles) {
+    return;
+  }
+
+  for (const profile of selection.custom.privateProfiles) {
+    if (!fs.existsSync(profile.sourcePath)) {
+      continue;
+    }
+
+    copyPath(profile.sourcePath, path.join(targetDir, profile.targetPath));
+  }
+}
+
 function renderCodex(rootDir, targetDir, selection) {
   ensureDir(targetDir);
 
@@ -52,6 +66,7 @@ function renderCodex(rootDir, targetDir, selection) {
 
   copySkills(rootDir, targetDir, selection.shared.skills);
   copyConfiguredPaths(rootDir, targetDir, selection);
+  copyPrivateProfiles(targetDir, selection);
 
   writeFile(path.join(targetDir, 'AGENTS.md'), generateCodexRootAgentsMd(selection));
   writeFile(path.join(targetDir, '.codex', 'AGENTS.md'), generateCodexSupplement(selection));

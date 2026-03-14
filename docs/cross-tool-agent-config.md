@@ -35,6 +35,8 @@ It controls:
 - tool-specific protected paths
 - stack-to-rules/skills/agents mappings
 
+The custom skill catalog lives at [custom-skills.json](/Users/keygaze/dev/tools/my-agent-config/config/custom-skills.json).
+
 ## Commands
 
 Render Claude home output:
@@ -84,10 +86,15 @@ Codex render:
 
 Add your own skills under [overlay/custom/skills](/Users/keygaze/dev/tools/my-agent-config/overlay/custom/skills/README.md).
 
+Private personal data belongs in gitignored local files under `private/skills/`.
+
+See [custom-skills.md](/Users/keygaze/dev/tools/my-agent-config/docs/custom-skills.md) for the public-skill/private-profile split.
+
 Rules:
 - never edit upstream skill directories for personal behavior
 - prefer custom skills for personal workflows, tone, or private preferences
 - keep names distinct from upstream skills to avoid confusion
+- keep personal profile data out of the repo and in local private profiles
 
 ## Migration Direction
 

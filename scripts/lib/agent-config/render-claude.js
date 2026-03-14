@@ -48,6 +48,34 @@ function copySharedInfrastructure(rootDir, targetDir, selection) {
   }
 }
 
+function copyCustomCommands(rootDir, targetDir, selection) {
+  if (!selection.custom || !selection.custom.commands || selection.custom.commands.length === 0) {
+    return;
+  }
+
+  const sourceDir = path.join(rootDir, 'overlay', 'custom', 'commands');
+  const destinationDir = path.join(targetDir, 'commands');
+  ensureDir(destinationDir);
+
+  for (const commandName of selection.custom.commands) {
+    copyPath(path.join(sourceDir, `${commandName}.md`), path.join(destinationDir, `${commandName}.md`));
+  }
+}
+
+function copyPrivateProfiles(targetDir, selection) {
+  if (!selection.custom || !selection.custom.privateProfiles) {
+    return;
+  }
+
+  for (const profile of selection.custom.privateProfiles) {
+    if (!fs.existsSync(profile.sourcePath)) {
+      continue;
+    }
+
+    copyPath(profile.sourcePath, path.join(targetDir, profile.targetPath));
+  }
+}
+
 function renderClaude(rootDir, targetDir, selection) {
   ensureDir(targetDir);
 
@@ -64,6 +92,8 @@ function renderClaude(rootDir, targetDir, selection) {
   copySelectedRules(rootDir, targetDir, selection.shared.rules);
   copySelectedSkills(rootDir, targetDir, selection.shared.skills);
   copySharedInfrastructure(rootDir, targetDir, selection);
+  copyCustomCommands(rootDir, targetDir, selection);
+  copyPrivateProfiles(targetDir, selection);
 
   writeFile(path.join(targetDir, 'rules', 'common', 'agents.md'), generateClaudeAgentsMd(selection));
   writeFile(path.join(targetDir, 'AGENTS.md'), generateClaudeRootAgentsMd(selection));

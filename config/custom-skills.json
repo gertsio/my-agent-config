@@ -1,0 +1,97 @@
+{
+  "version": 1,
+  "skills": {
+    "adhx": {
+      "origin": "imported",
+      "status": "optional",
+      "uses_private_profile": false,
+      "private_profile_required": false,
+      "private_profile_path": null,
+      "claude_default": false,
+      "codex_default": false,
+      "claude_command_aliases": [],
+      "notes": "Useful social-content fetcher, but not part of the default engineering baseline."
+    },
+    "find-skills": {
+      "origin": "imported",
+      "status": "optional",
+      "uses_private_profile": false,
+      "private_profile_required": false,
+      "private_profile_path": null,
+      "claude_default": false,
+      "codex_default": false,
+      "claude_command_aliases": [],
+      "notes": "Optional discovery helper for installing third-party skills."
+    },
+    "learned": {
+      "origin": "runtime",
+      "status": "runtime_only",
+      "uses_private_profile": false,
+      "private_profile_required": false,
+      "private_profile_path": null,
+      "claude_default": false,
+      "codex_default": false,
+      "claude_command_aliases": [],
+      "notes": "Generated locally at runtime. Never sync from the repo."
+    },
+    "notebooklm": {
+      "origin": "imported",
+      "status": "active",
+      "uses_private_profile": false,
+      "private_profile_required": false,
+      "private_profile_path": null,
+      "claude_default": true,
+      "codex_default": true,
+      "claude_command_aliases": [],
+      "notes": "Canonical shared NotebookLM workflow for both Claude and Codex."
+    },
+    "personal-standby": {
+      "origin": "fork",
+      "status": "optional",
+      "uses_private_profile": false,
+      "private_profile_required": false,
+      "private_profile_path": null,
+      "claude_default": false,
+      "codex_default": false,
+      "claude_command_aliases": [],
+      "notes": "Personal short-reply helper kept in the fork namespace."
+    },
+    "upwork-proposal": {
+      "origin": "fork",
+      "status": "active",
+      "uses_private_profile": true,
+      "private_profile_required": true,
+      "private_profile_path": "private/skills/upwork-proposal/profile.md",
+      "claude_default": true,
+      "codex_default": true,
+      "claude_command_aliases": [
+        "upwork-proposal"
+      ],
+      "notes": "Public proposal workflow with local-only experience and proof-point data."
+    },
+    "wp-best-practices": {
+      "origin": "imported",
+      "status": "optional",
+      "uses_private_profile": false,
+      "private_profile_required": false,
+      "private_profile_path": null,
+      "claude_default": false,
+      "codex_default": false,
+      "claude_command_aliases": [],
+      "notes": "Optional WordPress skill imported into the shared custom catalog."
+    },
+    "writing": {
+      "origin": "fork",
+      "status": "active",
+      "uses_private_profile": true,
+      "private_profile_required": false,
+      "private_profile_path": "private/skills/writing/profile.md",
+      "claude_default": true,
+      "codex_default": true,
+      "claude_command_aliases": [
+        "writing"
+      ],
+      "notes": "Public writing workflow plus local voice profile for both tools."
+    }
+  }
+}
