@@ -14,6 +14,16 @@ function copySelectedAgents(rootDir, targetDir, agents) {
   }
 }
 
+function copySelectedCommands(rootDir, targetDir, commands) {
+  const sourceDir = path.join(rootDir, 'commands');
+  const destinationDir = path.join(targetDir, 'commands');
+  ensureDir(destinationDir);
+
+  for (const commandName of commands) {
+    copyPath(path.join(sourceDir, `${commandName}.md`), path.join(destinationDir, `${commandName}.md`));
+  }
+}
+
 function copySelectedRules(rootDir, targetDir, rules) {
   for (const rule of rules) {
     copyPath(path.join(rootDir, 'rules', rule), path.join(targetDir, 'rules', rule));
@@ -89,6 +99,7 @@ function renderClaude(rootDir, targetDir, selection) {
   }
 
   copySelectedAgents(rootDir, targetDir, selection.shared.agents);
+  copySelectedCommands(rootDir, targetDir, selection.shared.commands);
   copySelectedRules(rootDir, targetDir, selection.shared.rules);
   copySelectedSkills(rootDir, targetDir, selection.shared.skills);
   copySharedInfrastructure(rootDir, targetDir, selection);

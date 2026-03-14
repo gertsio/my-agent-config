@@ -19,6 +19,7 @@ function normalizeList(value) {
 function mergeSection(target, source) {
   return {
     agents: normalizeList([...target.agents, ...(source.agents || [])]),
+    commands: normalizeList([...target.commands, ...(source.commands || [])]),
     rules: normalizeList([...target.rules, ...(source.rules || [])]),
     skills: normalizeList([...target.skills, ...(source.skills || [])]),
     copyDirs: normalizeList([...target.copyDirs, ...(source.copyDirs || [])]),
@@ -30,6 +31,7 @@ function mergeSection(target, source) {
 function subtractSection(target, source) {
   return {
     agents: target.agents.filter(item => !(source.agents || []).includes(item)),
+    commands: target.commands.filter(item => !(source.commands || []).includes(item)),
     rules: target.rules.filter(item => !(source.rules || []).includes(item)),
     skills: target.skills.filter(item => !(source.skills || []).includes(item)),
     copyDirs: target.copyDirs.filter(item => !(source.copyDirs || []).includes(item)),
@@ -41,6 +43,7 @@ function subtractSection(target, source) {
 function createEmptySection() {
   return {
     agents: [],
+    commands: [],
     rules: [],
     skills: [],
     copyDirs: [],
@@ -129,6 +132,7 @@ function summarizeSelection(selection) {
     tool: selection.tool,
     stacks: selection.stacks,
     agents: selection.shared.agents,
+    commands: selection.shared.commands,
     rules: selection.shared.rules,
     skills: selection.shared.skills,
     copyDirs: selection.tooling.copyDirs,

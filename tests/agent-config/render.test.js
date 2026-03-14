@@ -7,6 +7,7 @@ const { applyCustomAssets, resolveCustomAssets } = require('../../scripts/lib/ag
 const { resolveStacks } = require('../../scripts/lib/agent-config/manifest');
 const { renderClaude } = require('../../scripts/lib/agent-config/render-claude');
 const { renderCodex } = require('../../scripts/lib/agent-config/render-codex');
+const { renderProject } = require('../../scripts/lib/agent-config/render-project');
 
 const reviewCatalog = {
   skills: {
@@ -112,14 +113,15 @@ function makeRepoFixture() {
   fs.writeFileSync(path.join(rootDir, 'skills', 'security-review', 'SKILL.md'), '# security-review');
   fs.writeFileSync(path.join(rootDir, 'skills', 'python-patterns', 'SKILL.md'), '# python-patterns');
   fs.writeFileSync(path.join(rootDir, 'commands', 'plan.md'), '# plan');
+  fs.writeFileSync(path.join(rootDir, 'commands', 'python-review.md'), '# python-review');
   fs.writeFileSync(path.join(rootDir, 'contexts', 'readme.md'), '# contexts');
   fs.writeFileSync(path.join(rootDir, 'hooks', 'hooks.json'), '{}');
   fs.writeFileSync(path.join(rootDir, 'mcp-configs', 'exa.json'), '{}');
   fs.writeFileSync(path.join(rootDir, 'scripts', 'tool.js'), 'console.log("ok");');
   fs.writeFileSync(path.join(rootDir, '.claude', 'package-manager.json'), '{}');
   fs.writeFileSync(path.join(rootDir, '.codex', 'agents', 'explorer.toml'), 'model = "gpt-5.4"\n');
-  fs.writeFileSync(path.join(rootDir, 'overlay', 'custom', 'commands', 'upwork-proposal.md'), 'load private/skills/upwork-proposal/profile.md');
-  fs.writeFileSync(path.join(rootDir, 'overlay', 'custom', 'commands', 'writing.md'), 'load private/skills/writing/profile.md');
+  fs.writeFileSync(path.join(rootDir, 'overlay', 'custom', 'commands', 'upwork-proposal.md'), 'load ../skills/upwork-proposal/private/skills/upwork-proposal/profile.md');
+  fs.writeFileSync(path.join(rootDir, 'overlay', 'custom', 'commands', 'writing.md'), 'load ../skills/writing/private/skills/writing/profile.md');
   fs.writeFileSync(path.join(rootDir, 'overlay', 'custom', 'skills', 'notebooklm', 'SKILL.md'), '# notebooklm');
   fs.writeFileSync(path.join(rootDir, 'overlay', 'custom', 'skills', 'upwork-proposal', 'SKILL.md'), '# upwork');
   fs.writeFileSync(path.join(rootDir, 'overlay', 'custom', 'skills', 'writing', 'SKILL.md'), '# writing');
@@ -131,18 +133,19 @@ function makeRepoFixture() {
 const manifest = {
   defaults: {
     byTool: {
-      claude: ['python'],
+      claude: [],
       codex: []
     }
   },
   always: {
     shared: {
       agents: ['planner'],
+      commands: ['plan'],
       skills: ['security-review'],
       rules: ['common']
     },
     claude: {
-      copyDirs: ['commands', 'contexts', 'hooks', 'mcp-configs', 'scripts'],
+      copyDirs: ['contexts', 'hooks', 'mcp-configs', 'scripts'],
       copyFiles: ['.claude/package-manager.json'],
       protectedPaths: ['CLAUDE.md']
     },
@@ -153,6 +156,7 @@ const manifest = {
   stacks: {
     python: {
       shared: {
+        commands: ['python-review'],
         skills: ['python-patterns'],
         rules: ['python']
       },
@@ -166,11 +170,11 @@ const manifest = {
 let passed = 0;
 let failed = 0;
 
-if (test('renderClaude copies only selected assets and preserves protected files', () => {
+if (test('renderClaude copies only global assets and preserves protected files', () => {
   const rootDir = makeRepoFixture();
   const targetDir = fs.mkdtempSync(path.join(os.tmpdir(), 'agent-config-claude-'));
   const selection = applyCustomAssets(
-    resolveStacks(manifest, ['python'], 'claude', reviewCatalog),
+    resolveStacks(manifest, [], 'claude', reviewCatalog),
     resolveCustomAssets(rootDir, customCatalog, 'claude')
   );
 
@@ -178,18 +182,44 @@ if (test('renderClaude copies only selected assets and preserves protected files
   renderClaude(rootDir, targetDir, selection);
 
   assert.ok(fs.existsSync(path.join(targetDir, 'agents', 'planner.md')));
-  assert.ok(fs.existsSync(path.join(targetDir, 'agents', 'python-reviewer.md')));
-  assert.ok(fs.existsSync(path.join(targetDir, 'skills', 'python-patterns', 'SKILL.md')));
+  assert.ok(!fs.existsSync(path.join(targetDir, 'agents', 'python-reviewer.md')));
+  assert.ok(!fs.existsSync(path.join(targetDir, 'skills', 'python-patterns', 'SKILL.md')));
   assert.ok(fs.existsSync(path.join(targetDir, 'skills', 'writing', 'SKILL.md')));
   assert.ok(fs.existsSync(path.join(targetDir, 'skills', 'upwork-proposal', 'SKILL.md')));
   assert.ok(fs.existsSync(path.join(targetDir, 'skills', 'notebooklm', 'SKILL.md')));
   assert.ok(fs.existsSync(path.join(targetDir, 'commands', 'plan.md')));
+  assert.ok(!fs.existsSync(path.join(targetDir, 'commands', 'python-review.md')));
   assert.ok(fs.existsSync(path.join(targetDir, 'commands', 'writing.md')));
   assert.ok(fs.existsSync(path.join(targetDir, 'commands', 'upwork-proposal.md')));
-  assert.ok(fs.existsSync(path.join(targetDir, 'private', 'skills', 'writing', 'profile.md')));
-  assert.ok(!fs.existsSync(path.join(targetDir, 'private', 'skills', 'upwork-proposal', 'profile.md')));
+  assert.ok(fs.existsSync(path.join(targetDir, 'skills', 'writing', 'private', 'skills', 'writing', 'profile.md')));
+  assert.ok(!fs.existsSync(path.join(targetDir, 'skills', 'upwork-proposal', 'private', 'skills', 'upwork-proposal', 'profile.md')));
+  assert.match(fs.readFileSync(path.join(targetDir, 'commands', 'writing.md'), 'utf8'), /\.\.\/skills\/writing\/private\/skills\/writing\/profile\.md/);
   assert.strictEqual(fs.readFileSync(path.join(targetDir, 'CLAUDE.md'), 'utf8'), 'keep me');
-  assert.match(fs.readFileSync(path.join(targetDir, 'rules', 'common', 'agents.md'), 'utf8'), /python-reviewer/);
+  assert.doesNotMatch(fs.readFileSync(path.join(targetDir, 'rules', 'common', 'agents.md'), 'utf8'), /python-reviewer/);
+})) passed += 1; else failed += 1;
+
+if (test('renderProject installs real Claude project assets for stack-specific overlays', () => {
+  const rootDir = makeRepoFixture();
+  const projectDir = fs.mkdtempSync(path.join(os.tmpdir(), 'agent-config-project-'));
+  const selection = {
+    tool: 'claude',
+    stacks: ['python'],
+    shared: {
+      agents: ['python-reviewer'],
+      commands: ['python-review'],
+      rules: ['python'],
+      skills: ['python-patterns']
+    }
+  };
+
+  renderProject(rootDir, projectDir, selection);
+
+  assert.ok(fs.existsSync(path.join(projectDir, '.claude', 'agents', 'python-reviewer.md')));
+  assert.ok(fs.existsSync(path.join(projectDir, '.claude', 'commands', 'python-review.md')));
+  assert.ok(fs.existsSync(path.join(projectDir, '.claude', 'skills', 'python-patterns', 'SKILL.md')));
+  assert.ok(!fs.existsSync(path.join(projectDir, '.claude', 'commands', 'plan.md')));
+  assert.match(fs.readFileSync(path.join(projectDir, 'AGENTS.md'), 'utf8'), /python-review/);
+  assert.match(fs.readFileSync(path.join(projectDir, '.claude', 'STACK-OVERLAY.md'), 'utf8'), /Prefer python rules/);
 })) passed += 1; else failed += 1;
 
 if (test('renderCodex creates a clean split between ECC skills and custom skills', () => {
@@ -207,7 +237,8 @@ if (test('renderCodex creates a clean split between ECC skills and custom skills
   assert.ok(fs.existsSync(path.join(targetDir, '.agents', 'skills', 'custom', 'writing', 'SKILL.md')));
   assert.ok(fs.existsSync(path.join(targetDir, '.agents', 'skills', 'custom', 'upwork-proposal', 'SKILL.md')));
   assert.ok(fs.existsSync(path.join(targetDir, '.agents', 'skills', 'custom', 'notebooklm', 'SKILL.md')));
-  assert.ok(fs.existsSync(path.join(targetDir, 'private', 'skills', 'writing', 'profile.md')));
+  assert.ok(fs.existsSync(path.join(targetDir, '.agents', 'skills', 'custom', 'writing', 'private', 'skills', 'writing', 'profile.md')));
+  assert.ok(!fs.existsSync(path.join(targetDir, '.agents', 'skills', 'custom', 'upwork-proposal', 'private', 'skills', 'upwork-proposal', 'profile.md')));
   assert.ok(!fs.existsSync(path.join(targetDir, 'commands', 'writing.md')));
   assert.ok(fs.existsSync(path.join(targetDir, '.codex', 'config.ecc.toml')));
   assert.match(fs.readFileSync(path.join(targetDir, 'AGENTS.md'), 'utf8'), /Minimal Codex Baseline/);

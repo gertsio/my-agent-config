@@ -30,10 +30,10 @@ The human review matrix lives at [claude-skill-review.md](/Users/keygaze/dev/too
 The stack manifest lives at [stacks.json](/Users/keygaze/dev/tools/my-agent-config/config/stacks.json).
 
 It controls:
-- Claude default stacks
+- Claude global defaults versus project overlays
 - shared low-overhead defaults
 - tool-specific protected paths
-- stack-to-rules/skills/agents mappings
+- stack-to-commands/rules/skills/agents mappings
 
 The custom skill catalog lives at [custom-skills.json](/Users/keygaze/dev/tools/my-agent-config/config/custom-skills.json).
 
@@ -42,7 +42,7 @@ The custom skill catalog lives at [custom-skills.json](/Users/keygaze/dev/tools/
 Render Claude home output:
 
 ```bash
-npm run agent-config:render:claude -- --stacks typescript,python --output ./build/claude-home
+npm run agent-config:render:claude -- --output ./build/claude-home
 ```
 
 Render Codex home output:
@@ -67,12 +67,18 @@ npm run agent-config:check-upstream -- --stacks typescript,python
 ## Output Shape
 
 Claude render:
-- reviewed default skills only at the global level
+- workflow and harness defaults only at the global level
 - selected `agents/`
+- selected `commands/`
 - selected `rules/`
 - selected `skills/`
-- shared `commands/`, `contexts/`, `hooks/`, `mcp-configs/`, `scripts/`
+- shared `contexts/`, `hooks/`, `mcp-configs/`, `scripts/`
 - generated `rules/common/agents.md`
+
+Claude project overlay:
+- generated root `AGENTS.md`
+- real `.claude/agents/`, `.claude/commands/`, `.claude/skills/` installs for the selected stacks
+- `.claude/STACK-OVERLAY.md` for stack rule guidance
 
 Codex render:
 - minimal root `AGENTS.md`
@@ -100,8 +106,8 @@ Rules:
 
 Claude:
 - keep the valuable runtime model
-- let reviewed skills drive defaults
-- use stack selection for language-specific installs
+- keep global installs cross-project only
+- use explicit project overlays for language-specific installs
 
 Codex:
 - stop mirroring Claude behavior

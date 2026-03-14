@@ -15,6 +15,10 @@ function collectAssetIndex(manifest) {
   }
 
   for (const [stackName, stack] of Object.entries(manifest.stacks || {})) {
+    for (const commandName of (stack.shared && stack.shared.commands) || []) {
+      byPathToken.set(`commands/${commandName}.md`, { scope: 'stack', stack: stackName, type: 'command' });
+    }
+
     for (const ruleName of (stack.shared && stack.shared.rules) || []) {
       if (ruleName) {
         byPathToken.set(`rules/${ruleName}/`, { scope: 'stack', stack: stackName, type: 'rule' });
@@ -28,10 +32,18 @@ function collectAssetIndex(manifest) {
     for (const agentName of (stack.claude && stack.claude.agents) || []) {
       byPathToken.set(`agents/${agentName}.md`, { scope: 'stack', stack: stackName, type: 'agent' });
     }
+
+    for (const commandName of (stack.claude && stack.claude.commands) || []) {
+      byPathToken.set(`commands/${commandName}.md`, { scope: 'stack', stack: stackName, type: 'command' });
+    }
   }
 
   for (const agentName of ((always.shared && always.shared.agents) || [])) {
     byPathToken.set(`agents/${agentName}.md`, { scope: 'always', type: 'agent' });
+  }
+
+  for (const commandName of ((always.shared && always.shared.commands) || [])) {
+    byPathToken.set(`commands/${commandName}.md`, { scope: 'always', type: 'command' });
   }
 
   for (const skillName of ((always.shared && always.shared.skills) || [])) {

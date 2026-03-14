@@ -42,6 +42,13 @@ function generateClaudeRootAgentsMd(selection) {
     lines.push(`- ${skill}`);
   }
 
+  if (selection.shared.commands && selection.shared.commands.length > 0) {
+    lines.push('', '## Active Commands', '');
+    for (const command of selection.shared.commands) {
+      lines.push(`- ${command}`);
+    }
+  }
+
   return `${lines.join('\n')}\n`;
 }
 

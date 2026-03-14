@@ -66,7 +66,7 @@ if (test('Claude command aliases stay thin and reference local private profiles'
     const commandPath = path.join(rootDir, 'overlay', 'custom', 'commands', `${commandName}.md`);
     const content = fs.readFileSync(commandPath, 'utf8');
     assert.ok(content.split('\n').length <= 20, `${commandName} alias should stay thin`);
-    assert.match(content, /private\/skills\//);
+    assert.match(content, /\.\.\/skills\/.*private\/skills\//);
     assert.doesNotMatch(content, /My Background/i);
   }
 })) passed += 1; else failed += 1;

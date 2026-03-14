@@ -2,19 +2,74 @@
   "version": 1,
   "defaults": {
     "byTool": {
-      "claude": [
-        "typescript",
-        "python"
-      ],
+      "claude": [],
       "codex": []
     }
   },
   "always": {
     "shared": {
+      "agents": [
+        "architect",
+        "build-error-resolver",
+        "code-reviewer",
+        "doc-updater",
+        "loop-operator",
+        "planner",
+        "refactor-cleaner",
+        "security-reviewer",
+        "tdd-guide"
+      ],
+      "commands": [
+        "aside",
+        "build-fix",
+        "checkpoint",
+        "claw",
+        "code-review",
+        "eval",
+        "evolve",
+        "harness-audit",
+        "instinct-export",
+        "instinct-import",
+        "instinct-status",
+        "learn",
+        "learn-eval",
+        "loop-start",
+        "loop-status",
+        "model-route",
+        "multi-backend",
+        "multi-execute",
+        "multi-frontend",
+        "multi-plan",
+        "multi-workflow",
+        "orchestrate",
+        "plan",
+        "pm2",
+        "projects",
+        "promote",
+        "prompt-optimize",
+        "quality-gate",
+        "refactor-clean",
+        "resume-session",
+        "save-session",
+        "sessions",
+        "setup-pm",
+        "skill-create",
+        "tdd",
+        "test-coverage",
+        "update-codemaps",
+        "update-docs",
+        "verify"
+      ],
       "skills": [
         "coding-standards",
+        "continuous-learning",
+        "continuous-learning-v2",
+        "eval-harness",
+        "nanoclaw-repl",
+        "prompt-optimizer",
         "search-first",
         "security-review",
+        "security-scan",
         "strategic-compact",
         "tdd-workflow",
         "verification-loop"
@@ -25,7 +80,6 @@
     },
     "claude": {
       "copyDirs": [
-        "commands",
         "contexts",
         "hooks",
         "mcp-configs",
@@ -79,6 +133,9 @@
   "stacks": {
     "typescript": {
       "shared": {
+        "commands": [
+          "e2e"
+        ],
         "skills": [
           "frontend-patterns",
           "backend-patterns",
@@ -97,6 +154,9 @@
     },
     "python": {
       "shared": {
+        "commands": [
+          "python-review"
+        ],
         "skills": [
           "python-patterns",
           "python-testing",
@@ -114,6 +174,11 @@
     },
     "golang": {
       "shared": {
+        "commands": [
+          "go-build",
+          "go-review",
+          "go-test"
+        ],
         "skills": [
           "golang-patterns",
           "golang-testing"
@@ -131,6 +196,9 @@
     },
     "java": {
       "shared": {
+        "commands": [
+          "gradle-build"
+        ],
         "skills": [
           "java-coding-standards"
         ],
@@ -160,6 +228,12 @@
     },
     "kotlin": {
       "shared": {
+        "commands": [
+          "gradle-build",
+          "kotlin-build",
+          "kotlin-review",
+          "kotlin-test"
+        ],
         "skills": [
           "kotlin-patterns",
           "kotlin-testing",

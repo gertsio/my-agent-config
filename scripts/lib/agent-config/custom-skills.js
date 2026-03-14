@@ -81,10 +81,14 @@ function resolveCustomAssets(rootDir, catalog, tool) {
     }
 
     if (record.uses_private_profile && record.private_profile_path) {
+      const targetPrefix = tool === 'claude'
+        ? path.join('skills', skillName)
+        : path.join('.agents', 'skills', 'custom', skillName);
+
       privateProfiles.push({
         skill: skillName,
         sourcePath: path.join(rootDir, record.private_profile_path),
-        targetPath: path.join('private', 'skills', skillName, 'profile.md'),
+        targetPath: path.join(targetPrefix, 'private', 'skills', skillName, 'profile.md'),
         required: record.private_profile_required
       });
     }

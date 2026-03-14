@@ -116,6 +116,21 @@ function getSelection(args) {
   };
 }
 
+function diffSharedSelection(selection, baseline) {
+  const remove = (items, baselineItems) => items.filter(item => !baselineItems.includes(item));
+
+  return {
+    ...selection,
+    shared: {
+      ...selection.shared,
+      agents: remove(selection.shared.agents, baseline.shared.agents),
+      commands: remove(selection.shared.commands, baseline.shared.commands),
+      rules: remove(selection.shared.rules, baseline.shared.rules),
+      skills: remove(selection.shared.skills, baseline.shared.skills)
+    }
+  };
+}
+
 function runRender(args) {
   const { manifest, selection } = getSelection(args);
   const rootDir = getRepoRoot();
@@ -137,10 +152,16 @@ function runRender(args) {
 }
 
 function runProjectRender(args) {
-  const { selection } = getSelection(args);
   const rootDir = getRepoRoot();
+  const manifest = loadManifest(getManifestPath(args));
+  const reviewCatalog = loadSkillReviewCatalog(getSkillReviewPath());
+  const fullSelection = resolveStacks(manifest, args.stacks, args.tool, reviewCatalog);
   const projectDir = path.resolve(args.projectDir || args.output || path.join(rootDir, 'build', 'project-overlay', args.tool));
   ensureDir(projectDir);
+  const selection = args.tool === 'claude'
+    ? diffSharedSelection(fullSelection, resolveStacks(manifest, [], args.tool, reviewCatalog))
+    : fullSelection;
+
   return renderProject(rootDir, projectDir, selection);
 }
 

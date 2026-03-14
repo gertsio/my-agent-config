@@ -18,15 +18,17 @@ const manifest = {
   always: {
     shared: {
       agents: ['planner'],
+      commands: ['plan'],
       skills: ['security-review']
     },
     claude: {
-      copyDirs: ['commands', 'scripts']
+      copyDirs: ['scripts']
     }
   },
   stacks: {
     python: {
       shared: {
+        commands: ['python-review'],
         skills: ['python-patterns'],
         rules: ['python']
       }
@@ -48,13 +50,14 @@ let failed = 0;
 
 if (test('summarizeChangedFiles filters changes to selected stacks and runtime assets', () => {
   const summary = summarizeChangedFiles(manifest, ['python'], [
+    'commands/python-review.md',
     'skills/golang-patterns/SKILL.md',
     'rules/python/testing.md',
     'scripts/hooks/run-with-flags.js',
     'README.md'
   ]);
 
-  assert.strictEqual(summary.relevant.length, 2);
+  assert.strictEqual(summary.relevant.length, 3);
   assert.deepStrictEqual(summary.impactedStacks, ['python']);
   assert.ok(summary.irrelevant.some(item => item.file === 'skills/golang-patterns/SKILL.md'));
   assert.ok(summary.irrelevant.some(item => item.file === 'README.md'));
