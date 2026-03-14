@@ -1,0 +1,51 @@
+{
+  "created_at": "2026-03-14",
+  "tool": "NotebookLM",
+  "notebook_id": "cfd9196a-eddb-40bc-9df0-a125cfa804e7",
+  "conversation_id": "975e9975-0c75-4e0b-8dd2-2dced48ec44e",
+  "title": "Cross-Tool Agent Config Evaluation",
+  "goal": "Decide whether ECC should be used as a direct personal base or as an upstream component library with a thin overlay that works across Claude Code and Codex.",
+  "prompt": "Using only these sources, evaluate whether Everything Claude Code should be used as a direct personal base or as an upstream component library with a thin customization overlay for a setup that must work across Claude Code and Codex. Answer in four sections: 1) key evidence from official Anthropic docs, 2) what ECC is strong at, 3) risks of deletion-heavy forking, 4) recommended architecture and update workflow. Be concrete about settings, hooks, subagents, context overhead, and project-level vs global customization.",
+  "sources": [
+    {
+      "label": "Claude Code overview",
+      "url": "https://docs.anthropic.com/en/docs/claude-code/overview"
+    },
+    {
+      "label": "Claude Code settings",
+      "url": "https://docs.anthropic.com/en/docs/claude-code/settings"
+    },
+    {
+      "label": "Claude Code hooks",
+      "url": "https://docs.anthropic.com/en/docs/claude-code/hooks"
+    },
+    {
+      "label": "Claude Code sub-agents",
+      "url": "https://docs.anthropic.com/en/docs/claude-code/sub-agents"
+    },
+    {
+      "label": "Claude Code costs",
+      "url": "https://docs.anthropic.com/en/docs/claude-code/costs"
+    },
+    {
+      "label": "Claude Code best practices",
+      "url": "https://docs.anthropic.com/en/docs/claude-code/best-practices"
+    },
+    {
+      "label": "Everything Claude Code repo",
+      "url": "https://github.com/affaan-m/everything-claude-code"
+    },
+    {
+      "label": "ECC longform guide",
+      "url": "https://github.com/affaan-m/everything-claude-code/blob/main/the-longform-guide.md"
+    },
+    {
+      "label": "Trail of Bits Claude Code config",
+      "url": "https://github.com/trailofbits/claude-code-config"
+    },
+    {
+      "label": "Tyler Folkman Claude skills guide",
+      "url": "https://tylerfolkman.substack.com/p/the-complete-guide-to-claude-skills"
+    }
+  ]
+}

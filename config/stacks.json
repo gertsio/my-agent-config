@@ -1,0 +1,230 @@
+{
+  "version": 1,
+  "defaults": {
+    "stacks": [
+      "typescript",
+      "python"
+    ]
+  },
+  "always": {
+    "shared": {
+      "agents": [
+        "planner",
+        "architect",
+        "tdd-guide",
+        "code-reviewer",
+        "security-reviewer",
+        "build-error-resolver",
+        "refactor-cleaner",
+        "doc-updater",
+        "database-reviewer"
+      ],
+      "skills": [
+        "security-review",
+        "tdd-workflow",
+        "verification-loop",
+        "deployment-patterns",
+        "docker-patterns",
+        "database-migrations",
+        "postgres-patterns"
+      ],
+      "rules": [
+        "common"
+      ]
+    },
+    "claude": {
+      "copyDirs": [
+        "commands",
+        "contexts",
+        "hooks",
+        "mcp-configs",
+        "scripts"
+      ],
+      "copyFiles": [
+        ".claude/package-manager.json"
+      ],
+      "protectedPaths": [
+        "CLAUDE.md",
+        "settings.json",
+        "settings.local.json",
+        "statusline-command.sh",
+        "history.jsonl",
+        "todos",
+        "plans",
+        "debug",
+        "shell-snapshots",
+        "session-env",
+        "sessions",
+        "telemetry",
+        "paste-cache",
+        "file-history",
+        "plugins",
+        "transcripts"
+      ]
+    },
+    "codex": {
+      "copyDirs": [
+        ".codex/agents"
+      ],
+      "copyFiles": [
+        ".codex/config.toml",
+        ".codex/AGENTS.md"
+      ],
+      "protectedPaths": [
+        "auth.json",
+        "history.jsonl",
+        "logs_1.sqlite",
+        "logs_1.sqlite-shm",
+        "logs_1.sqlite-wal",
+        "state_5.sqlite",
+        "state_5.sqlite-shm",
+        "state_5.sqlite-wal",
+        "models_cache.json",
+        "session_index.jsonl",
+        "shell_snapshots",
+        "sessions",
+        "archived_sessions",
+        "sqlite",
+        "automations",
+        "memories"
+      ]
+    }
+  },
+  "stacks": {
+    "typescript": {
+      "shared": {
+        "skills": [
+          "coding-standards",
+          "frontend-patterns",
+          "backend-patterns",
+          "e2e-testing",
+          "api-design"
+        ],
+        "rules": [
+          "typescript"
+        ]
+      },
+      "claude": {
+        "agents": [
+          "e2e-runner"
+        ]
+      }
+    },
+    "python": {
+      "shared": {
+        "skills": [
+          "python-patterns",
+          "python-testing",
+          "api-design"
+        ],
+        "rules": [
+          "python"
+        ]
+      },
+      "claude": {
+        "agents": [
+          "python-reviewer"
+        ]
+      }
+    },
+    "golang": {
+      "shared": {
+        "skills": [
+          "golang-patterns",
+          "golang-testing"
+        ],
+        "rules": [
+          "golang"
+        ]
+      },
+      "claude": {
+        "agents": [
+          "go-reviewer",
+          "go-build-resolver"
+        ]
+      }
+    },
+    "java": {
+      "shared": {
+        "skills": [
+          "java-coding-standards"
+        ],
+        "rules": []
+      }
+    },
+    "springboot": {
+      "extends": [
+        "java"
+      ],
+      "shared": {
+        "skills": [
+          "springboot-patterns",
+          "springboot-security",
+          "springboot-tdd",
+          "springboot-verification"
+        ]
+      }
+    },
+    "php": {
+      "shared": {
+        "skills": [],
+        "rules": [
+          "php"
+        ]
+      }
+    },
+    "kotlin": {
+      "shared": {
+        "skills": [
+          "kotlin-patterns",
+          "kotlin-testing",
+          "kotlin-coroutines-flows",
+          "kotlin-ktor-patterns",
+          "kotlin-exposed-patterns"
+        ],
+        "rules": [
+          "kotlin"
+        ]
+      },
+      "claude": {
+        "agents": [
+          "kotlin-reviewer",
+          "kotlin-build-resolver"
+        ]
+      }
+    },
+    "perl": {
+      "shared": {
+        "skills": [
+          "perl-patterns",
+          "perl-testing",
+          "perl-security"
+        ],
+        "rules": [
+          "perl"
+        ]
+      }
+    },
+    "swift": {
+      "shared": {
+        "skills": [
+          "swiftui-patterns",
+          "swift-concurrency-6-2",
+          "swift-protocol-di-testing",
+          "swift-actor-persistence"
+        ],
+        "rules": [
+          "swift"
+        ]
+      }
+    },
+    "cpp": {
+      "shared": {
+        "skills": [
+          "cpp-coding-standards",
+          "cpp-testing"
+        ]
+      }
+    }
+  }
+}
