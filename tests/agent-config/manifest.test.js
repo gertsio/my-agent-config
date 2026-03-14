@@ -2,6 +2,32 @@ const assert = require('assert');
 
 const { resolveStacks } = require('../../scripts/lib/agent-config/manifest');
 
+const reviewCatalog = {
+  skills: {
+    'security-review': {
+      status: 'reviewed',
+      decision: 'keep_as_is',
+      claude_default: true,
+      codex_allowed: true,
+      notes: 'ok'
+    },
+    'coding-standards': {
+      status: 'reviewed',
+      decision: 'trim',
+      claude_default: true,
+      codex_allowed: false,
+      notes: 'claude only in this fixture'
+    },
+    'python-patterns': {
+      status: 'reviewed',
+      decision: 'rewrite',
+      claude_default: false,
+      codex_allowed: false,
+      notes: 'blocked'
+    }
+  }
+};
+
 function test(name, fn) {
   try {
     fn();
@@ -16,7 +42,10 @@ function test(name, fn) {
 
 const manifest = {
   defaults: {
-    stacks: ['typescript']
+    byTool: {
+      claude: ['typescript'],
+      codex: []
+    }
   },
   always: {
     shared: {
@@ -60,20 +89,25 @@ let passed = 0;
 let failed = 0;
 
 if (test('resolveStacks uses defaults when no stack list is supplied', () => {
-  const selection = resolveStacks(manifest, [], 'claude');
+  const selection = resolveStacks(manifest, [], 'claude', reviewCatalog);
   assert.deepStrictEqual(selection.stacks, ['typescript']);
   assert.deepStrictEqual(selection.shared.rules, ['common', 'typescript']);
 })) passed += 1; else failed += 1;
 
 if (test('resolveStacks merges extends and excludes cleanly', () => {
-  const selection = resolveStacks(manifest, ['python'], 'claude');
+  const selection = resolveStacks(manifest, ['python'], 'claude', reviewCatalog);
   assert.deepStrictEqual(selection.shared.agents, ['planner', 'python-reviewer']);
   assert.deepStrictEqual(selection.shared.rules, ['common', 'python', 'typescript']);
   assert.deepStrictEqual(selection.shared.skills, ['python-patterns', 'security-review']);
 })) passed += 1; else failed += 1;
 
+if (test('resolveStacks filters Codex skills to reviewed compatible items only', () => {
+  const selection = resolveStacks(manifest, ['python'], 'codex', reviewCatalog);
+  assert.deepStrictEqual(selection.shared.skills, ['security-review']);
+})) passed += 1; else failed += 1;
+
 if (test('resolveStacks throws on unknown stacks', () => {
-  assert.throws(() => resolveStacks(manifest, ['ruby'], 'claude'), /Unknown stack/);
+  assert.throws(() => resolveStacks(manifest, ['ruby'], 'claude', reviewCatalog), /Unknown stack/);
 })) passed += 1; else failed += 1;
 
 console.log(`\nPassed: ${passed}`);

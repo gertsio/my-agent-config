@@ -1,0 +1,131 @@
+{
+  "version": 1,
+  "skills": {
+    "security-review": {
+      "status": "reviewed",
+      "decision": "trim",
+      "claude_default": true,
+      "codex_allowed": true,
+      "notes": "High-value guardrail skill, but the body is long and example-heavy. Keep the checklist, trim repetitive examples."
+    },
+    "tdd-workflow": {
+      "status": "reviewed",
+      "decision": "trim",
+      "claude_default": true,
+      "codex_allowed": true,
+      "notes": "Important default workflow. Shorten repeated coverage language and keep the RED-GREEN-REFACTOR core."
+    },
+    "verification-loop": {
+      "status": "reviewed",
+      "decision": "keep_as_is",
+      "claude_default": true,
+      "codex_allowed": true,
+      "notes": "Compact and clear. Good post-change checklist for both runtimes."
+    },
+    "deployment-patterns": {
+      "status": "reviewed",
+      "decision": "trim",
+      "claude_default": false,
+      "codex_allowed": true,
+      "notes": "Useful when explicitly needed, but too broad for default loading."
+    },
+    "docker-patterns": {
+      "status": "reviewed",
+      "decision": "trim",
+      "claude_default": false,
+      "codex_allowed": true,
+      "notes": "Keep as an opt-in infrastructure skill, not a default."
+    },
+    "database-migrations": {
+      "status": "reviewed",
+      "decision": "keep_as_is",
+      "claude_default": false,
+      "codex_allowed": true,
+      "notes": "Focused enough already. Strong candidate for explicit project use."
+    },
+    "postgres-patterns": {
+      "status": "reviewed",
+      "decision": "keep_as_is",
+      "claude_default": false,
+      "codex_allowed": true,
+      "notes": "Compact reference skill; safe to keep available but not default."
+    },
+    "coding-standards": {
+      "status": "reviewed",
+      "decision": "trim",
+      "claude_default": true,
+      "codex_allowed": true,
+      "notes": "Important, but it should be shorter and less generic."
+    },
+    "frontend-patterns": {
+      "status": "reviewed",
+      "decision": "trim",
+      "claude_default": false,
+      "codex_allowed": true,
+      "notes": "Useful for React work, but too large for always-on inclusion."
+    },
+    "backend-patterns": {
+      "status": "reviewed",
+      "decision": "trim",
+      "claude_default": false,
+      "codex_allowed": true,
+      "notes": "Useful for service work. Keep available, not default."
+    },
+    "e2e-testing": {
+      "status": "reviewed",
+      "decision": "trim",
+      "claude_default": false,
+      "codex_allowed": true,
+      "notes": "Project-specific and verbose; keep as opt-in."
+    },
+    "api-design": {
+      "status": "reviewed",
+      "decision": "trim",
+      "claude_default": false,
+      "codex_allowed": true,
+      "notes": "High value when designing APIs, but should stay off by default."
+    },
+    "python-patterns": {
+      "status": "reviewed",
+      "decision": "rewrite",
+      "claude_default": false,
+      "codex_allowed": false,
+      "notes": "Too long and too broad right now. Rewrite before using as a shared default."
+    },
+    "python-testing": {
+      "status": "reviewed",
+      "decision": "rewrite",
+      "claude_default": false,
+      "codex_allowed": false,
+      "notes": "Large and Python-specific. Needs a smaller, more tactical version."
+    },
+    "search-first": {
+      "status": "reviewed",
+      "decision": "keep_as_is",
+      "claude_default": true,
+      "codex_allowed": true,
+      "notes": "Clear trigger, low overhead, good default behavior."
+    },
+    "strategic-compact": {
+      "status": "reviewed",
+      "decision": "keep_as_is",
+      "claude_default": true,
+      "codex_allowed": true,
+      "notes": "Short, specific, and directly useful for long sessions."
+    },
+    "eval-harness": {
+      "status": "reviewed",
+      "decision": "trim",
+      "claude_default": false,
+      "codex_allowed": true,
+      "notes": "Strong for AI-heavy work, but advanced and not a default."
+    },
+    "iterative-retrieval": {
+      "status": "reviewed",
+      "decision": "keep_as_is",
+      "claude_default": false,
+      "codex_allowed": true,
+      "notes": "Compact and valuable for context-constrained workflows."
+    }
+  }
+}

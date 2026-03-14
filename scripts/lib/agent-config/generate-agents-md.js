@@ -17,7 +17,7 @@ function generateClaudeAgentsMd(selection) {
   return `${lines.join('\n')}\n`;
 }
 
-function generateRootAgentsMd(selection) {
+function generateClaudeRootAgentsMd(selection) {
   const lines = [
     '# Generated Agent Stack Overlay',
     '',
@@ -45,26 +45,38 @@ function generateRootAgentsMd(selection) {
   return `${lines.join('\n')}\n`;
 }
 
+function generateCodexRootAgentsMd(selection) {
+  const lines = [
+    '# Minimal Codex Baseline',
+    '',
+    '<!-- GENERATED FILE. DO NOT EDIT. -->',
+    '',
+    'This is a low-overhead global Codex baseline.',
+    'Prefer project overlays for stack-specific guidance.',
+    '',
+    `Active stacks: ${selection.stacks.join(', ') || 'none'}`,
+    '',
+    'Global skills:',
+    ...selection.shared.skills.map(skill => `- ${skill}`)
+  ];
+
+  return `${lines.join('\n')}\n`;
+}
+
 function generateCodexSupplement(selection) {
   const lines = [
-    '# Generated Codex Supplement',
+    '# Codex Project Guidance',
     '',
     '<!-- GENERATED FILE. DO NOT EDIT. -->',
     '',
     `Active stacks: ${selection.stacks.join(', ') || 'none'}`,
     '',
-    '## Managed Skills',
+    'Use only the explicitly listed skills below.',
     ''
   ];
 
   for (const skill of selection.shared.skills) {
     lines.push(`- ${skill}`);
-  }
-
-  lines.push('', '## Managed Agents', '');
-
-  for (const agent of selection.shared.agents) {
-    lines.push(`- ${agent}`);
   }
 
   return `${lines.join('\n')}\n`;
@@ -78,9 +90,17 @@ function generateCodexManagedConfig(selection) {
     '# Active stacks:',
     `# ${selection.stacks.join(', ') || 'none'}`,
     '',
-    'features.multi_agent = true',
-    'agents.max_threads = 6',
-    'agents.max_depth = 1'
+    'approval_policy = "on-request"',
+    'sandbox_mode = "workspace-write"',
+    'web_search = "live"',
+    '',
+    '[mcp_servers.context7]',
+    'command = "npx"',
+    'args = ["-y", "@upstash/context7-mcp@latest"]',
+    '',
+    '[mcp_servers.github]',
+    'command = "npx"',
+    'args = ["-y", "@modelcontextprotocol/server-github"]'
   ];
 
   return `${lines.join('\n')}\n`;
@@ -88,7 +108,8 @@ function generateCodexManagedConfig(selection) {
 
 module.exports = {
   generateClaudeAgentsMd,
+  generateClaudeRootAgentsMd,
   generateCodexManagedConfig,
-  generateCodexSupplement,
-  generateRootAgentsMd
+  generateCodexRootAgentsMd,
+  generateCodexSupplement
 };

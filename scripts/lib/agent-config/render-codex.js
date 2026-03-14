@@ -4,18 +4,9 @@ const path = require('path');
 const { copyPath, ensureDir, removeDirContents, writeFile } = require('./filesystem');
 const {
   generateCodexManagedConfig,
+  generateCodexRootAgentsMd,
   generateCodexSupplement,
-  generateRootAgentsMd
 } = require('./generate-agents-md');
-
-function copyCodexAgents(rootDir, targetDir) {
-  const sourceDir = path.join(rootDir, '.codex', 'agents');
-  if (!fs.existsSync(sourceDir)) {
-    return;
-  }
-
-  copyPath(sourceDir, path.join(targetDir, 'agents'));
-}
 
 function copySkills(rootDir, targetDir, skills) {
   const upstreamSkillsDir = path.join(rootDir, 'skills');
@@ -37,11 +28,21 @@ function copySkills(rootDir, targetDir, skills) {
   }
 }
 
+function copyConfiguredPaths(rootDir, targetDir, selection) {
+  for (const relativeDir of selection.tooling.copyDirs) {
+    copyPath(path.join(rootDir, relativeDir), path.join(targetDir, relativeDir.replace(/^\.codex\//, '')));
+  }
+
+  for (const relativeFile of selection.tooling.copyFiles) {
+    copyPath(path.join(rootDir, relativeFile), path.join(targetDir, relativeFile));
+  }
+}
+
 function renderCodex(rootDir, targetDir, selection) {
   ensureDir(targetDir);
 
   const protectedPaths = new Set(selection.tooling.protectedPaths);
-  for (const dirName of ['agents', '.agents']) {
+  for (const dirName of ['agents', '.agents', '.codex']) {
     if (protectedPaths.has(dirName)) {
       continue;
     }
@@ -49,10 +50,10 @@ function renderCodex(rootDir, targetDir, selection) {
     removeDirContents(path.join(targetDir, dirName));
   }
 
-  copyCodexAgents(rootDir, targetDir);
   copySkills(rootDir, targetDir, selection.shared.skills);
+  copyConfiguredPaths(rootDir, targetDir, selection);
 
-  writeFile(path.join(targetDir, 'AGENTS.md'), generateRootAgentsMd(selection));
+  writeFile(path.join(targetDir, 'AGENTS.md'), generateCodexRootAgentsMd(selection));
   writeFile(path.join(targetDir, '.codex', 'AGENTS.md'), generateCodexSupplement(selection));
   writeFile(path.join(targetDir, '.codex', 'config.ecc.toml'), generateCodexManagedConfig(selection));
 

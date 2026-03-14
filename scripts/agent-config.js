@@ -4,6 +4,7 @@ const path = require('path');
 
 const { ensureDir, writeFile } = require('./lib/agent-config/filesystem');
 const { loadManifest, resolveStacks, summarizeSelection } = require('./lib/agent-config/manifest');
+const { loadSkillReviewCatalog } = require('./lib/agent-config/skill-review');
 const { renderClaude } = require('./lib/agent-config/render-claude');
 const { renderCodex } = require('./lib/agent-config/render-codex');
 const { renderProject } = require('./lib/agent-config/render-project');
@@ -70,11 +71,16 @@ function getManifestPath(args) {
   return args.manifest || path.join(getRepoRoot(), 'config', 'stacks.json');
 }
 
+function getSkillReviewPath() {
+  return path.join(getRepoRoot(), 'config', 'skill-review.json');
+}
+
 function getSelection(args) {
   const manifest = loadManifest(getManifestPath(args));
+  const reviewCatalog = loadSkillReviewCatalog(getSkillReviewPath());
   return {
     manifest,
-    selection: resolveStacks(manifest, args.stacks, args.tool)
+    selection: resolveStacks(manifest, args.stacks, args.tool, reviewCatalog)
   };
 }
 

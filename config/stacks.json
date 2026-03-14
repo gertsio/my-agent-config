@@ -1,32 +1,23 @@
 {
   "version": 1,
   "defaults": {
-    "stacks": [
-      "typescript",
-      "python"
-    ]
+    "byTool": {
+      "claude": [
+        "typescript",
+        "python"
+      ],
+      "codex": []
+    }
   },
   "always": {
     "shared": {
-      "agents": [
-        "planner",
-        "architect",
-        "tdd-guide",
-        "code-reviewer",
-        "security-reviewer",
-        "build-error-resolver",
-        "refactor-cleaner",
-        "doc-updater",
-        "database-reviewer"
-      ],
       "skills": [
+        "coding-standards",
+        "search-first",
         "security-review",
+        "strategic-compact",
         "tdd-workflow",
-        "verification-loop",
-        "deployment-patterns",
-        "docker-patterns",
-        "database-migrations",
-        "postgres-patterns"
+        "verification-loop"
       ],
       "rules": [
         "common"
@@ -63,13 +54,8 @@
       ]
     },
     "codex": {
-      "copyDirs": [
-        ".codex/agents"
-      ],
-      "copyFiles": [
-        ".codex/config.toml",
-        ".codex/AGENTS.md"
-      ],
+      "copyDirs": [],
+      "copyFiles": [],
       "protectedPaths": [
         "auth.json",
         "history.jsonl",
@@ -94,7 +80,6 @@
     "typescript": {
       "shared": {
         "skills": [
-          "coding-standards",
           "frontend-patterns",
           "backend-patterns",
           "e2e-testing",

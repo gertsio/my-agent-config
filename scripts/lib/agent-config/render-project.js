@@ -1,7 +1,7 @@
 const path = require('path');
 
 const { writeFile } = require('./filesystem');
-const { generateCodexSupplement, generateRootAgentsMd } = require('./generate-agents-md');
+const { generateClaudeRootAgentsMd, generateCodexSupplement } = require('./generate-agents-md');
 
 function generateClaudeProjectOverlay(selection) {
   const lines = [
@@ -23,7 +23,7 @@ function generateClaudeProjectOverlay(selection) {
 }
 
 function renderProject(rootDir, projectDir, selection) {
-  writeFile(path.join(projectDir, 'AGENTS.md'), generateRootAgentsMd(selection));
+  writeFile(path.join(projectDir, 'AGENTS.md'), generateClaudeRootAgentsMd(selection));
 
   if (selection.tool === 'claude') {
     writeFile(path.join(projectDir, '.claude', 'STACK-OVERLAY.md'), generateClaudeProjectOverlay(selection));

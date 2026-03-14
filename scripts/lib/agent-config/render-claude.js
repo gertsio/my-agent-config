@@ -2,7 +2,7 @@ const fs = require('fs');
 const path = require('path');
 
 const { copyPath, ensureDir, removeDirContents, writeFile } = require('./filesystem');
-const { generateClaudeAgentsMd, generateRootAgentsMd } = require('./generate-agents-md');
+const { generateClaudeAgentsMd, generateClaudeRootAgentsMd } = require('./generate-agents-md');
 
 function copySelectedAgents(rootDir, targetDir, agents) {
   const sourceDir = path.join(rootDir, 'agents');
@@ -66,7 +66,7 @@ function renderClaude(rootDir, targetDir, selection) {
   copySharedInfrastructure(rootDir, targetDir, selection);
 
   writeFile(path.join(targetDir, 'rules', 'common', 'agents.md'), generateClaudeAgentsMd(selection));
-  writeFile(path.join(targetDir, 'AGENTS.md'), generateRootAgentsMd(selection));
+  writeFile(path.join(targetDir, 'AGENTS.md'), generateClaudeRootAgentsMd(selection));
 
   return {
     generatedFiles: [

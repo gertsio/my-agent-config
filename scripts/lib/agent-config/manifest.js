@@ -1,6 +1,8 @@
 const fs = require('fs');
 const path = require('path');
 
+const { filterSkillsForTool } = require('./skill-review');
+
 function loadManifest(manifestPath) {
   const resolvedPath = path.resolve(manifestPath);
   return JSON.parse(fs.readFileSync(resolvedPath, 'utf8'));
@@ -47,9 +49,13 @@ function createEmptySection() {
   };
 }
 
-function getRequestedStacks(manifest, requestedStacks) {
+function getRequestedStacks(manifest, requestedStacks, tool) {
   if (Array.isArray(requestedStacks) && requestedStacks.length > 0) {
     return requestedStacks;
+  }
+
+  if (manifest.defaults && manifest.defaults.byTool && Array.isArray(manifest.defaults.byTool[tool])) {
+    return manifest.defaults.byTool[tool];
   }
 
   if (manifest.defaults && Array.isArray(manifest.defaults.stacks) && manifest.defaults.stacks.length > 0) {
@@ -93,12 +99,12 @@ function resolveStackSection(manifest, stackName, tool, visiting = new Set(), re
   return combined;
 }
 
-function resolveStacks(manifest, requestedStacks, tool) {
+function resolveStacks(manifest, requestedStacks, tool, reviewCatalog = null) {
   if (!['claude', 'codex'].includes(tool)) {
     throw new Error(`Unsupported tool "${tool}"`);
   }
 
-  const stacks = getRequestedStacks(manifest, requestedStacks);
+  const stacks = getRequestedStacks(manifest, requestedStacks, tool);
   const selection = {
     tool,
     stacks: normalizeList(stacks),
@@ -112,6 +118,8 @@ function resolveStacks(manifest, requestedStacks, tool) {
   for (const stackName of selection.stacks) {
     selection.shared = mergeSection(selection.shared, resolveStackSection(manifest, stackName, tool));
   }
+
+  selection.shared.skills = filterSkillsForTool(selection.shared.skills, reviewCatalog, tool);
 
   return selection;
 }

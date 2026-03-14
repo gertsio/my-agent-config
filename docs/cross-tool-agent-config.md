@@ -1,23 +1,37 @@
-# Cross-Tool Agent Config
+# Claude-Reviewed Skills + Minimal Codex Runtime
 
-This repo now supports a research-first control plane for Claude Code and Codex.
+This repo now treats Claude Code and Codex differently on purpose.
 
 ## Goals
 
 - Keep `main` close to upstream ECC.
 - Keep `personal` limited to overlay-owned logic.
-- Select only the stacks you want installed.
+- Review core Claude skills before trusting them as defaults.
+- Select only the stacks you want installed for Claude.
 - Preserve protected runtime files in `~/.claude` and `~/.codex`.
+- Keep Codex globally minimal.
 - Keep custom skills separate from upstream-imported skills.
 - Report upstream changes without auto-merging them.
 
+## Skill Review
+
+The review catalog lives at [skill-review.json](/Users/keygaze/dev/tools/my-agent-config/config/skill-review.json).
+
+It is the machine-readable source of truth for:
+- reviewed core skills
+- keep/trim/rewrite/drop decisions
+- Claude default approval
+- Codex compatibility approval
+
+The human review matrix lives at [claude-skill-review.md](/Users/keygaze/dev/tools/my-agent-config/docs/claude-skill-review.md).
+
 ## Manifest
 
-The stack manifest lives at [config/stacks.json](/Users/keygaze/dev/tools/my-agent-config/config/stacks.json).
+The stack manifest lives at [stacks.json](/Users/keygaze/dev/tools/my-agent-config/config/stacks.json).
 
 It controls:
-- default stacks
-- shared always-on assets
+- Claude default stacks
+- shared low-overhead defaults
 - tool-specific protected paths
 - stack-to-rules/skills/agents mappings
 
@@ -32,7 +46,7 @@ npm run agent-config:render:claude -- --stacks typescript,python --output ./buil
 Render Codex home output:
 
 ```bash
-npm run agent-config:render:codex -- --stacks typescript,python --output ./build/codex-home
+npm run agent-config:render:codex -- --output ./build/codex-home
 ```
 
 Render a project overlay:
@@ -51,6 +65,7 @@ npm run agent-config:check-upstream -- --stacks typescript,python
 ## Output Shape
 
 Claude render:
+- reviewed default skills only at the global level
 - selected `agents/`
 - selected `rules/`
 - selected `skills/`
@@ -58,12 +73,12 @@ Claude render:
 - generated `rules/common/agents.md`
 
 Codex render:
-- generated root `AGENTS.md`
+- minimal root `AGENTS.md`
 - generated `.codex/AGENTS.md`
 - generated `.codex/config.ecc.toml`
-- selected skills under `.agents/skills/ecc/`
+- only reviewed `codex_allowed` skills under `.agents/skills/ecc/`
 - custom skills under `.agents/skills/custom/`
-- upstream Codex role configs under `agents/`
+- no broad role inventory by default
 
 ## Custom Skills
 
@@ -73,6 +88,18 @@ Rules:
 - never edit upstream skill directories for personal behavior
 - prefer custom skills for personal workflows, tone, or private preferences
 - keep names distinct from upstream skills to avoid confusion
+
+## Migration Direction
+
+Claude:
+- keep the valuable runtime model
+- let reviewed skills drive defaults
+- use stack selection for language-specific installs
+
+Codex:
+- stop mirroring Claude behavior
+- keep the global runtime minimal
+- use project overlays for stack-specific extras
 
 ## Scheduling
 

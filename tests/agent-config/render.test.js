@@ -7,6 +7,32 @@ const { resolveStacks } = require('../../scripts/lib/agent-config/manifest');
 const { renderClaude } = require('../../scripts/lib/agent-config/render-claude');
 const { renderCodex } = require('../../scripts/lib/agent-config/render-codex');
 
+const reviewCatalog = {
+  skills: {
+    'security-review': {
+      status: 'reviewed',
+      decision: 'trim',
+      claude_default: true,
+      codex_allowed: true,
+      notes: 'ok'
+    },
+    'personal-standby': {
+      status: 'reviewed',
+      decision: 'keep_as_is',
+      claude_default: false,
+      codex_allowed: false,
+      notes: 'custom only'
+    },
+    'python-patterns': {
+      status: 'reviewed',
+      decision: 'rewrite',
+      claude_default: false,
+      codex_allowed: false,
+      notes: 'blocked in codex'
+    }
+  }
+};
+
 function test(name, fn) {
   try {
     fn();
@@ -56,7 +82,10 @@ function makeRepoFixture() {
 
 const manifest = {
   defaults: {
-    stacks: ['python']
+    byTool: {
+      claude: ['python'],
+      codex: []
+    }
   },
   always: {
     shared: {
@@ -70,7 +99,6 @@ const manifest = {
       protectedPaths: ['CLAUDE.md']
     },
     codex: {
-      copyDirs: ['.codex/agents'],
       protectedPaths: ['config.toml']
     }
   },
@@ -93,7 +121,7 @@ let failed = 0;
 if (test('renderClaude copies only selected assets and preserves protected files', () => {
   const rootDir = makeRepoFixture();
   const targetDir = fs.mkdtempSync(path.join(os.tmpdir(), 'agent-config-claude-'));
-  const selection = resolveStacks(manifest, ['python'], 'claude');
+  const selection = resolveStacks(manifest, ['python'], 'claude', reviewCatalog);
 
   fs.writeFileSync(path.join(targetDir, 'CLAUDE.md'), 'keep me');
   renderClaude(rootDir, targetDir, selection);
@@ -110,14 +138,16 @@ if (test('renderClaude copies only selected assets and preserves protected files
 if (test('renderCodex creates a clean split between ECC skills and custom skills', () => {
   const rootDir = makeRepoFixture();
   const targetDir = fs.mkdtempSync(path.join(os.tmpdir(), 'agent-config-codex-'));
-  const selection = resolveStacks(manifest, ['python'], 'codex');
+  const selection = resolveStacks(manifest, ['python'], 'codex', reviewCatalog);
 
   renderCodex(rootDir, targetDir, selection);
 
   assert.ok(fs.existsSync(path.join(targetDir, '.agents', 'skills', 'ecc', 'security-review', 'SKILL.md')));
-  assert.ok(fs.existsSync(path.join(targetDir, '.agents', 'skills', 'custom', 'personal-standby', 'SKILL.md')));
+  assert.ok(!fs.existsSync(path.join(targetDir, '.agents', 'skills', 'ecc', 'python-patterns', 'SKILL.md')));
   assert.ok(fs.existsSync(path.join(targetDir, '.codex', 'config.ecc.toml')));
-  assert.match(fs.readFileSync(path.join(targetDir, '.codex', 'AGENTS.md'), 'utf8'), /python-patterns/);
+  assert.match(fs.readFileSync(path.join(targetDir, 'AGENTS.md'), 'utf8'), /Minimal Codex Baseline/);
+  assert.ok(!fs.existsSync(path.join(targetDir, 'agents', 'explorer.toml')));
+  assert.doesNotMatch(fs.readFileSync(path.join(targetDir, '.codex', 'AGENTS.md'), 'utf8'), /Managed Agents/);
 })) passed += 1; else failed += 1;
 
 console.log(`\nPassed: ${passed}`);
