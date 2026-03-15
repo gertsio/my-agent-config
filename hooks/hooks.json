@@ -226,7 +226,7 @@
             "type": "command",
             "command": "node \"${CLAUDE_PLUGIN_ROOT}/scripts/hooks/run-with-flags.js\" \"stop:session-end\" \"scripts/hooks/session-end.js\" \"minimal,standard,strict\"",
             "async": true,
-            "timeout": 10
+            "timeout": 30
           }
         ],
         "description": "Persist session state after each response (Stop carries transcript_path)"

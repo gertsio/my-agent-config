@@ -180,10 +180,52 @@ async function main() {
   let transcriptPath = null;
   try {
     const input = JSON.parse(stdinData);
-    transcriptPath = input.transcript_path;
+    // Support multiple field names: Claude Code may use transcript_path or transcriptPath
+    transcriptPath = input.transcript_path || input.transcriptPath || input.transcript;
+    if (!transcriptPath) {
+      log(`[SessionEnd] stdin fields: ${Object.keys(input).join(', ') || '(empty object)'}`);
+    }
   } catch {
-    // Fallback: try env var for backwards compatibility
+    log(`[SessionEnd] stdin not JSON (${stdinData.length} bytes), trying env fallback`);
+  }
+
+  // Fallback chain: env var, then auto-detect from Claude session dir
+  if (!transcriptPath) {
     transcriptPath = process.env.CLAUDE_TRANSCRIPT_PATH;
+  }
+
+  if (!transcriptPath) {
+    // Auto-detect: find the transcript in the Claude project sessions dir
+    const homeDir = process.env.HOME || process.env.USERPROFILE || '';
+    const projectDir = path.join(homeDir, '.claude', 'projects');
+    if (fs.existsSync(projectDir)) {
+      const cwd = process.cwd().replace(/\//g, '-').replace(/^-/, '-');
+      const projectSessionDir = path.join(projectDir, cwd);
+      if (fs.existsSync(projectSessionDir)) {
+        const jsonlFiles = fs.readdirSync(projectSessionDir)
+          .filter(f => f.endsWith('.jsonl'))
+          .map(f => ({
+            name: f,
+            path: path.join(projectSessionDir, f),
+            mtime: fs.statSync(path.join(projectSessionDir, f)).mtimeMs
+          }))
+          .sort((a, b) => b.mtime - a.mtime);
+
+        // Prefer matching session ID if available
+        const sessionId = process.env.CLAUDE_SESSION_ID;
+        const match = sessionId
+          ? jsonlFiles.find(f => f.name.startsWith(sessionId))
+          : null;
+
+        if (match) {
+          transcriptPath = match.path;
+          log(`[SessionEnd] Matched transcript by session ID: ${transcriptPath}`);
+        } else if (jsonlFiles.length > 0) {
+          transcriptPath = jsonlFiles[0].path;
+          log(`[SessionEnd] Auto-detected transcript (most recent): ${transcriptPath}`);
+        }
+      }
+    }
   }
 
   const sessionsDir = getSessionsDir();
