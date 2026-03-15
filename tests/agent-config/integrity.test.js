@@ -118,6 +118,13 @@ if (test('project-scoped stack selections keep stack-specific command dependenci
   }
 })) passed += 1; else failed += 1;
 
+if (test('concern stacks resolve without errors', () => {
+  for (const stacks of [['docker'], ['postgres'], ['deployment'], ['django']]) {
+    const selection = buildClaudeSelection(stacks);
+    assertCommandDependencies(selection, selection.shared.commands);
+  }
+})) passed += 1; else failed += 1;
+
 console.log(`\nPassed: ${passed}`);
 console.log(`Failed: ${failed}`);
 process.exit(failed > 0 ? 1 : 0);

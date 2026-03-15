@@ -1,12 +1,12 @@
 ---
 name: deep-research
-description: Multi-source deep research using firecrawl and exa MCPs. Searches the web, synthesizes findings, and delivers cited reports with source attribution. Use when the user wants thorough research on any topic with evidence and citations.
+description: Multi-source deep research using firecrawl, exa, and built-in WebSearch/WebFetch. Searches the web, synthesizes findings, and delivers cited reports with source attribution. Use when the user wants thorough research on any topic with evidence and citations.
 origin: ECC
 ---
 
 # Deep Research
 
-Produce thorough, cited research reports from multiple web sources using firecrawl and exa MCP tools.
+Produce thorough, cited research reports from multiple web sources.
 
 ## When to Activate
 
@@ -16,13 +16,27 @@ Produce thorough, cited research reports from multiple web sources using firecra
 - Any question requiring synthesis from multiple sources
 - User says "research", "deep dive", "investigate", or "what's the current state of"
 
-## MCP Requirements
+## Researcher Agent
 
-At least one of:
-- **firecrawl** — `firecrawl_search`, `firecrawl_scrape`, `firecrawl_crawl`
-- **exa** — `web_search_exa`, `web_search_advanced_exa`, `crawling_exa`
+This skill is the knowledge base for the `researcher` agent (`agents/researcher.md`).
+Invoke directly via `/deep-research` command or by spawning the researcher as a subagent.
 
-Both together give the best coverage. Configure in `~/.claude.json` or `~/.codex/config.toml`.
+## Tool Requirements
+
+Use the best available tools, in priority order:
+
+### Tier 1: MCP Tools (best coverage)
+- **firecrawl** — `firecrawl_search`, `firecrawl_scrape`, `firecrawl_crawl`, `firecrawl_agent`, `firecrawl_extract`, `firecrawl_map`
+- **exa** — `web_search_exa`, `web_search_advanced_exa`, `crawling_exa`, `company_research_exa`, `deep_researcher_start`/`deep_researcher_check`
+
+### Tier 2: Built-in Tools (always available)
+- **WebSearch** — General web search, no API key required
+- **WebFetch** — Fetch and read any URL
+
+### Tier 3: Documentation Tools
+- **Context7** — Library and API documentation lookup (`resolve-library-id`, `query-docs`)
+
+Use Tier 1 when configured. Fall back to Tier 2 when MCPs are unavailable. Use Tier 3 for library/API-specific research. Both MCP tools together give the best coverage. Configure in `~/.claude.json`.
 
 ## Workflow
 
@@ -46,17 +60,29 @@ Break the topic into 3-5 research sub-questions. Example:
 
 ### Step 3: Execute Multi-Source Search
 
-For EACH sub-question, search using available MCP tools:
+For EACH sub-question, search using available tools:
 
-**With firecrawl:**
+**With firecrawl (Tier 1):**
 ```
 firecrawl_search(query: "<sub-question keywords>", limit: 8)
+firecrawl_agent(query: "<complex research question>")
 ```
 
-**With exa:**
+**With exa (Tier 1):**
 ```
 web_search_exa(query: "<sub-question keywords>", numResults: 8)
 web_search_advanced_exa(query: "<keywords>", numResults: 5, startPublishedDate: "2025-01-01")
+```
+
+**With built-in WebSearch (Tier 2 — always available):**
+```
+WebSearch(query: "<sub-question keywords>", max_results: 8)
+```
+
+**With Context7 (Tier 3 — for library/API docs):**
+```
+resolve-library-id(libraryName: "<library>")
+query-docs(context7CompatibleLibraryID: "<id>", topic: "<topic>")
 ```
 
 **Search strategy:**
@@ -69,14 +95,19 @@ web_search_advanced_exa(query: "<keywords>", numResults: 5, startPublishedDate: 
 
 For the most promising URLs, fetch full content:
 
-**With firecrawl:**
+**With firecrawl (Tier 1):**
 ```
 firecrawl_scrape(url: "<url>")
 ```
 
-**With exa:**
+**With exa (Tier 1):**
 ```
 crawling_exa(url: "<url>", tokensNum: 5000)
+```
+
+**With built-in WebFetch (Tier 2 — always available):**
+```
+WebFetch(url: "<url>", prompt: "Extract key findings, data, and claims from this article")
 ```
 
 Read 3-5 key sources in full for depth. Do not rely only on search snippets.

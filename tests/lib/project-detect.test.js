@@ -13,6 +13,7 @@ const {
   detectProjectType,
   LANGUAGE_RULES,
   FRAMEWORK_RULES,
+  INFRASTRUCTURE_RULES,
   getPackageJsonDeps,
   getPythonDeps,
   getGoDeps,
@@ -93,13 +94,14 @@ function runTests() {
   // Empty directory detection
   console.log('\nEmpty Directory:');
 
-  if (test('empty directory returns unknown primary', () => {
+  if (test('empty directory returns unknown primary and empty infrastructure', () => {
     const dir = createTempDir();
     try {
       const result = detectProjectType(dir);
       assert.strictEqual(result.primary, 'unknown');
       assert.deepStrictEqual(result.languages, []);
       assert.deepStrictEqual(result.frameworks, []);
+      assert.deepStrictEqual(result.infrastructure, []);
       assert.strictEqual(result.projectDir, dir);
     } finally {
       cleanupDir(dir);
@@ -374,6 +376,69 @@ function runTests() {
       const result = detectProjectType(dir);
       assert.ok(result.languages.includes('elixir'));
       assert.ok(result.frameworks.includes('phoenix'));
+    } finally {
+      cleanupDir(dir);
+    }
+  })) passed++; else failed++;
+
+  // Infrastructure detection
+  console.log('\nInfrastructure Detection:');
+
+  if (test('INFRASTRUCTURE_RULES is non-empty array', () => {
+    assert.ok(Array.isArray(INFRASTRUCTURE_RULES));
+    assert.ok(INFRASTRUCTURE_RULES.length > 0);
+  })) passed++; else failed++;
+
+  if (test('detects docker from Dockerfile', () => {
+    const dir = createTempDir();
+    try {
+      writeTestFile(dir, 'Dockerfile', 'FROM node:20');
+      const result = detectProjectType(dir);
+      assert.ok(result.infrastructure.includes('docker'));
+    } finally {
+      cleanupDir(dir);
+    }
+  })) passed++; else failed++;
+
+  if (test('detects docker from compose.yaml', () => {
+    const dir = createTempDir();
+    try {
+      writeTestFile(dir, 'compose.yaml', 'services:\n  app:\n    build: .');
+      const result = detectProjectType(dir);
+      assert.ok(result.infrastructure.includes('docker'));
+    } finally {
+      cleanupDir(dir);
+    }
+  })) passed++; else failed++;
+
+  if (test('detects postgres from psycopg2 in requirements.txt', () => {
+    const dir = createTempDir();
+    try {
+      writeTestFile(dir, 'requirements.txt', 'psycopg2-binary>=2.9\nflask>=3.0');
+      const result = detectProjectType(dir);
+      assert.ok(result.infrastructure.includes('postgres'));
+    } finally {
+      cleanupDir(dir);
+    }
+  })) passed++; else failed++;
+
+  if (test('detects postgres from pg in package.json', () => {
+    const dir = createTempDir();
+    try {
+      writeTestFile(dir, 'package.json', '{"dependencies":{"pg":"8.11.0","express":"4.18.0"}}');
+      const result = detectProjectType(dir);
+      assert.ok(result.infrastructure.includes('postgres'));
+    } finally {
+      cleanupDir(dir);
+    }
+  })) passed++; else failed++;
+
+  if (test('detects github-actions from .github/workflows directory', () => {
+    const dir = createTempDir();
+    try {
+      writeTestFile(dir, '.github/workflows/ci.yml', 'name: CI');
+      const result = detectProjectType(dir);
+      assert.ok(result.infrastructure.includes('github-actions'));
     } finally {
       cleanupDir(dir);
     }

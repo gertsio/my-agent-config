@@ -318,9 +318,107 @@ function getElixirDeps(projectDir) {
 }
 
 /**
- * Detect project languages and frameworks
+ * Infrastructure detection rules.
+ * Checked after language/framework detection for cross-cutting concerns.
+ */
+const INFRASTRUCTURE_RULES = [
+  {
+    type: 'docker',
+    markers: ['Dockerfile', 'docker-compose.yml', 'docker-compose.yaml', 'compose.yml', 'compose.yaml'],
+    packageKeys: {}
+  },
+  {
+    type: 'postgres',
+    markers: [],
+    packageKeys: {
+      python: ['psycopg2', 'asyncpg', 'psycopg'],
+      typescript: ['pg', '@types/pg', 'prisma'],
+      javascript: ['pg', 'prisma'],
+      golang: ['github.com/lib/pq', 'github.com/jackc/pgx'],
+      rust: ['sqlx', 'diesel', 'tokio-postgres'],
+      php: ['doctrine/dbal']
+    }
+  },
+  {
+    type: 'github-actions',
+    markers: ['.github/workflows'],
+    packageKeys: {}
+  }
+];
+
+/**
+ * Build a map of dependencies keyed by detected language
+ * @param {string} projectDir - Project root directory
+ * @param {string[]} languages - Detected languages
+ * @returns {Object.<string, string[]>}
+ */
+function buildDepsMap(projectDir, languages) {
+  const depsMap = {};
+  for (const lang of languages) {
+    switch (lang) {
+      case 'python':
+        depsMap.python = getPythonDeps(projectDir);
+        break;
+      case 'typescript':
+        depsMap.typescript = getPackageJsonDeps(projectDir);
+        break;
+      case 'javascript':
+        depsMap.javascript = getPackageJsonDeps(projectDir);
+        break;
+      case 'golang':
+        depsMap.golang = getGoDeps(projectDir);
+        break;
+      case 'rust':
+        depsMap.rust = getRustDeps(projectDir);
+        break;
+      case 'php':
+        depsMap.php = getComposerDeps(projectDir);
+        break;
+      case 'elixir':
+        depsMap.elixir = getElixirDeps(projectDir);
+        break;
+    }
+  }
+  return depsMap;
+}
+
+/**
+ * Detect infrastructure from markers and dependency maps
+ * @param {string} projectDir - Project root directory
+ * @param {string[]} languages - Detected languages
+ * @param {Object.<string, string[]>} depsMap - Dependencies keyed by language
+ * @returns {string[]} Detected infrastructure types
+ */
+function detectInfrastructure(projectDir, languages, depsMap) {
+  const infrastructure = [];
+
+  for (const rule of INFRASTRUCTURE_RULES) {
+    const hasMarker = rule.markers.some(m => fileExists(projectDir, m));
+
+    let hasDep = false;
+    if (rule.packageKeys && Object.keys(rule.packageKeys).length > 0) {
+      for (const lang of languages) {
+        const keys = rule.packageKeys[lang];
+        const deps = depsMap[lang];
+        if (keys && deps) {
+          hasDep = keys.some(key => deps.some(dep => dep.toLowerCase().includes(key.toLowerCase())));
+          if (hasDep) break;
+        }
+      }
+    }
+
+    if (hasMarker || hasDep) {
+      infrastructure.push(rule.type);
+    }
+  }
+
+  return infrastructure;
+}
+
+/**
+ * Detect project languages, frameworks, and infrastructure
  * @param {string} [projectDir] - Project directory (defaults to cwd)
- * @returns {{ languages: string[], frameworks: string[], primary: string, projectDir: string }}
+ * @returns {{ languages: string[], frameworks: string[], infrastructure: string[], primary: string, projectDir: string }}
  */
 function detectProjectType(projectDir) {
   projectDir = projectDir || process.cwd();
@@ -344,12 +442,13 @@ function detectProjectType(projectDir) {
   }
 
   // Step 2: Detect frameworks based on markers and dependencies
-  const npmDeps = getPackageJsonDeps(projectDir);
-  const pyDeps = getPythonDeps(projectDir);
-  const goDeps = getGoDeps(projectDir);
-  const rustDeps = getRustDeps(projectDir);
-  const composerDeps = getComposerDeps(projectDir);
-  const elixirDeps = getElixirDeps(projectDir);
+  const depsMap = buildDepsMap(projectDir, languages);
+  const npmDeps = depsMap.typescript || depsMap.javascript || getPackageJsonDeps(projectDir);
+  const pyDeps = depsMap.python || getPythonDeps(projectDir);
+  const goDeps = depsMap.golang || getGoDeps(projectDir);
+  const rustDeps = depsMap.rust || getRustDeps(projectDir);
+  const composerDeps = depsMap.php || getComposerDeps(projectDir);
+  const elixirDeps = depsMap.elixir || getElixirDeps(projectDir);
 
   for (const rule of FRAMEWORK_RULES) {
     // Check marker files
@@ -388,7 +487,10 @@ function detectProjectType(projectDir) {
     }
   }
 
-  // Step 3: Determine primary type
+  // Step 3: Detect infrastructure
+  const infrastructure = detectInfrastructure(projectDir, languages, depsMap);
+
+  // Step 4: Determine primary type
   let primary = 'unknown';
   if (frameworks.length > 0) {
     primary = frameworks[0];
@@ -409,6 +511,7 @@ function detectProjectType(projectDir) {
   return {
     languages,
     frameworks,
+    infrastructure,
     primary,
     projectDir
   };
@@ -418,6 +521,7 @@ module.exports = {
   detectProjectType,
   LANGUAGE_RULES,
   FRAMEWORK_RULES,
+  INFRASTRUCTURE_RULES,
   // Exported for testing
   getPackageJsonDeps,
   getPythonDeps,

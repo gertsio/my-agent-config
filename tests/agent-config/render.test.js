@@ -222,6 +222,54 @@ if (test('renderProject installs real Claude project assets for stack-specific o
   assert.match(fs.readFileSync(path.join(projectDir, '.claude', 'STACK-OVERLAY.md'), 'utf8'), /Prefer python rules/);
 })) passed += 1; else failed += 1;
 
+if (test('renderProject includes detection info in STACK-OVERLAY.md when detection is provided', () => {
+  const rootDir = makeRepoFixture();
+  const projectDir = fs.mkdtempSync(path.join(os.tmpdir(), 'agent-config-project-'));
+  const selection = {
+    tool: 'claude',
+    stacks: ['python'],
+    shared: {
+      agents: ['python-reviewer'],
+      commands: ['python-review'],
+      rules: ['python'],
+      skills: ['python-patterns']
+    }
+  };
+  const detection = {
+    languages: ['python'],
+    frameworks: ['flask'],
+    infrastructure: ['docker', 'postgres']
+  };
+
+  renderProject(rootDir, projectDir, selection, detection);
+
+  const overlay = fs.readFileSync(path.join(projectDir, '.claude', 'STACK-OVERLAY.md'), 'utf8');
+  assert.match(overlay, /Auto-Detection Results/);
+  assert.match(overlay, /Languages: python/);
+  assert.match(overlay, /Frameworks: flask/);
+  assert.match(overlay, /Infrastructure: docker, postgres/);
+})) passed += 1; else failed += 1;
+
+if (test('renderProject omits detection section when detection is not provided', () => {
+  const rootDir = makeRepoFixture();
+  const projectDir = fs.mkdtempSync(path.join(os.tmpdir(), 'agent-config-project-'));
+  const selection = {
+    tool: 'claude',
+    stacks: ['python'],
+    shared: {
+      agents: ['python-reviewer'],
+      commands: ['python-review'],
+      rules: ['python'],
+      skills: ['python-patterns']
+    }
+  };
+
+  renderProject(rootDir, projectDir, selection);
+
+  const overlay = fs.readFileSync(path.join(projectDir, '.claude', 'STACK-OVERLAY.md'), 'utf8');
+  assert.doesNotMatch(overlay, /Auto-Detection Results/);
+})) passed += 1; else failed += 1;
+
 if (test('renderCodex creates a clean split between ECC skills and custom skills', () => {
   const rootDir = makeRepoFixture();
   const targetDir = fs.mkdtempSync(path.join(os.tmpdir(), 'agent-config-codex-'));

@@ -15,7 +15,9 @@ const { createTempRenderDir, deployClaudeHome } = require('./lib/agent-config/de
 const { renderClaude } = require('./lib/agent-config/render-claude');
 const { renderCodex } = require('./lib/agent-config/render-codex');
 const { renderProject } = require('./lib/agent-config/render-project');
+const { mapDetectionToStacks, mergeStacks } = require('./lib/agent-config/stack-detect');
 const { formatSummary, getChangedFiles, summarizeChangedFiles } = require('./lib/agent-config/update-check');
+const { detectProjectType } = require('./lib/project-detect');
 
 function parseArgs(argv) {
   const args = {
@@ -26,6 +28,7 @@ function parseArgs(argv) {
     targetDir: null,
     projectDir: null,
     manifest: null,
+    autoDetect: false,
     baseRef: 'main',
     compareRef: 'upstream/main'
   };
@@ -65,6 +68,10 @@ function parseArgs(argv) {
     if (token === '--base-ref') {
       args.baseRef = argv[index + 1];
       index += 1;
+      continue;
+    }
+    if (token === '--auto-detect') {
+      args.autoDetect = true;
       continue;
     }
     if (token === '--compare-ref') {
@@ -162,14 +169,27 @@ function runProjectRender(args) {
   const rootDir = getRepoRoot();
   const manifest = loadManifest(getManifestPath(args));
   const reviewCatalog = loadSkillReviewCatalog(getSkillReviewPath());
-  const fullSelection = resolveStacks(manifest, args.stacks, args.tool, reviewCatalog);
   const projectDir = path.resolve(args.projectDir || args.output || path.join(rootDir, 'build', 'project-overlay', args.tool));
   ensureDir(projectDir);
+
+  let stacks = args.stacks;
+  let detection = null;
+
+  if (args.autoDetect) {
+    detection = detectProjectType(projectDir);
+    const detectedStacks = mapDetectionToStacks(manifest, detection);
+    process.stdout.write(
+      `Auto-detect: languages=[${detection.languages}] frameworks=[${detection.frameworks}] infrastructure=[${detection.infrastructure}] -> stacks=[${detectedStacks}]\n`
+    );
+    stacks = mergeStacks(args.stacks, detectedStacks);
+  }
+
+  const fullSelection = resolveStacks(manifest, stacks, args.tool, reviewCatalog);
   const selection = args.tool === 'claude'
     ? diffSharedSelection(fullSelection, resolveStacks(manifest, [], args.tool, reviewCatalog))
     : fullSelection;
 
-  return renderProject(rootDir, projectDir, selection);
+  return renderProject(rootDir, projectDir, selection, detection);
 }
 
 function runUpdateCheck(args) {

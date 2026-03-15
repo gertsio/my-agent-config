@@ -4,7 +4,7 @@ const path = require('path');
 const { copyPath, ensureDir, removeDirContents, writeFile } = require('./filesystem');
 const { generateClaudeRootAgentsMd, generateCodexSupplement } = require('./generate-agents-md');
 
-function generateClaudeProjectOverlay(selection) {
+function generateClaudeProjectOverlay(selection, detection) {
   const lines = [
     '# Generated Claude Project Overlay',
     '',
@@ -18,6 +18,21 @@ function generateClaudeProjectOverlay(selection) {
 
   for (const rule of selection.shared.rules) {
     lines.push(`- Prefer ${rule} rules`);
+  }
+
+  if (detection) {
+    lines.push('');
+    lines.push('## Auto-Detection Results');
+    lines.push('');
+    if (detection.languages.length > 0) {
+      lines.push(`- Languages: ${detection.languages.join(', ')}`);
+    }
+    if (detection.frameworks.length > 0) {
+      lines.push(`- Frameworks: ${detection.frameworks.join(', ')}`);
+    }
+    if (detection.infrastructure.length > 0) {
+      lines.push(`- Infrastructure: ${detection.infrastructure.join(', ')}`);
+    }
   }
 
   return `${lines.join('\n')}\n`;
@@ -60,7 +75,7 @@ function copySelectedSkills(rootDir, targetDir, skills) {
   }
 }
 
-function renderProject(rootDir, projectDir, selection) {
+function renderProject(rootDir, projectDir, selection, detection) {
   writeFile(path.join(projectDir, 'AGENTS.md'), generateClaudeRootAgentsMd(selection));
 
   if (selection.tool === 'claude') {
@@ -71,7 +86,7 @@ function renderProject(rootDir, projectDir, selection) {
     copySelectedAgents(rootDir, projectDir, selection.shared.agents);
     copySelectedCommands(rootDir, projectDir, selection.shared.commands);
     copySelectedSkills(rootDir, projectDir, selection.shared.skills);
-    writeFile(path.join(projectDir, '.claude', 'STACK-OVERLAY.md'), generateClaudeProjectOverlay(selection));
+    writeFile(path.join(projectDir, '.claude', 'STACK-OVERLAY.md'), generateClaudeProjectOverlay(selection, detection));
   } else {
     writeFile(path.join(projectDir, '.codex', 'AGENTS.md'), generateCodexSupplement(selection));
   }

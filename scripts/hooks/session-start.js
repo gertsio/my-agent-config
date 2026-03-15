@@ -72,15 +72,18 @@ async function main() {
     log(getSelectionPrompt());
   }
 
-  // Detect project type and frameworks (#293)
+  // Detect project type, frameworks, and infrastructure (#293)
   const projectInfo = detectProjectType();
-  if (projectInfo.languages.length > 0 || projectInfo.frameworks.length > 0) {
+  if (projectInfo.languages.length > 0 || projectInfo.frameworks.length > 0 || projectInfo.infrastructure.length > 0) {
     const parts = [];
     if (projectInfo.languages.length > 0) {
       parts.push(`languages: ${projectInfo.languages.join(', ')}`);
     }
     if (projectInfo.frameworks.length > 0) {
       parts.push(`frameworks: ${projectInfo.frameworks.join(', ')}`);
+    }
+    if (projectInfo.infrastructure.length > 0) {
+      parts.push(`infrastructure: ${projectInfo.infrastructure.join(', ')}`);
     }
     log(`[SessionStart] Project detected — ${parts.join('; ')}`);
     output(`Project type: ${JSON.stringify(projectInfo)}`);

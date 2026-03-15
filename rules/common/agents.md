@@ -8,6 +8,7 @@ Located in `~/.claude/agents/`:
 |-------|---------|-------------|
 | planner | Implementation planning | Complex features, refactoring |
 | architect | System design | Architectural decisions |
+| researcher | Deep research | Topic research, due diligence, technology evaluation |
 | tdd-guide | Test-driven development | New features, bug fixes |
 | code-reviewer | Code review | After writing code |
 | security-reviewer | Security analysis | Before commits |
@@ -20,9 +21,10 @@ Located in `~/.claude/agents/`:
 
 No user prompt needed:
 1. Complex feature requests - Use **planner** agent
-2. Code just written/modified - Use **code-reviewer** agent
-3. Bug fix or new feature - Use **tdd-guide** agent
-4. Architectural decision - Use **architect** agent
+2. Research topic or technology - Use **researcher** agent
+3. Code just written/modified - Use **code-reviewer** agent
+4. Bug fix or new feature - Use **tdd-guide** agent
+5. Architectural decision - Use **architect** agent
 
 ## Parallel Task Execution
 

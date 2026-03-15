@@ -284,6 +284,111 @@
           "cpp-testing"
         ]
       }
+    },
+    "docker": {
+      "shared": {
+        "skills": [
+          "docker-patterns"
+        ]
+      }
+    },
+    "postgres": {
+      "shared": {
+        "agents": [
+          "database-reviewer"
+        ],
+        "skills": [
+          "postgres-patterns",
+          "database-migrations"
+        ]
+      }
+    },
+    "deployment": {
+      "shared": {
+        "skills": [
+          "deployment-patterns"
+        ]
+      }
+    },
+    "django": {
+      "extends": [
+        "python"
+      ],
+      "shared": {
+        "skills": [
+          "django-patterns",
+          "django-security",
+          "django-tdd",
+          "django-verification"
+        ]
+      }
+    }
+  },
+  "detection": {
+    "typescript": {
+      "languages": [
+        "typescript"
+      ]
+    },
+    "python": {
+      "languages": [
+        "python"
+      ]
+    },
+    "golang": {
+      "languages": [
+        "golang"
+      ]
+    },
+    "java": {
+      "languages": [
+        "java"
+      ]
+    },
+    "kotlin": {
+      "languages": [
+        "kotlin"
+      ]
+    },
+    "swift": {
+      "languages": [
+        "swift"
+      ]
+    },
+    "php": {
+      "languages": [
+        "php"
+      ]
+    },
+    "perl": {
+      "languages": [
+        "perl"
+      ]
+    },
+    "django": {
+      "frameworks": [
+        "django"
+      ]
+    },
+    "springboot": {
+      "frameworks": [
+        "spring"
+      ]
+    },
+    "docker": {
+      "infrastructure": [
+        "docker"
+      ]
+    },
+    "postgres": {
+      "infrastructure": [
+        "postgres"
+      ]
+    },
+    "deployment": {
+      "infrastructure": [
+        "github-actions"
+      ]
     }
   }
 }
